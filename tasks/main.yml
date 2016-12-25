@@ -1,0 +1,21 @@
+---
+    
+    - name: Install NGINX 
+      package: name={{ item }} state=installed
+      with_items:
+          - nginx
+
+    - name: Configure NGINX start automatically
+      service: name=nginx state=started enabled=yes
+    
+    - name: Prepare domain configuration
+      template: src=http_proxy.conf dest="/etc/nginx/conf.d/proxy_{{domain}}.conf"
+      notify: restart nginx
+
+    - name: Register domain for SSL certificate
+      lineinfile: line={{domain}} dest=/data/certs/managed_domains create=yes
+      when: (ssl is defined and ssl == True) or (https is defined)
+    
+    - name: Create path
+      file: dest="/data/static_pages/{{ domain }}/htdocs" state=directory
+      when: path is defined

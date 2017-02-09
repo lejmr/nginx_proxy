@@ -1,29 +1,28 @@
 ---
+    - name: Identify domain for proxy
+      debug: msg="Configuring {{domain}}"
 
     # Install necessary software
     - name: Install NGINX
       package: name={{ item }} state=installed
       with_items:
           - nginx
-
-    #
-    - name: Selecting certificate method
+    
+    - name: Automatically initiate static configuration
       set_fact:
         ssl_method: !!null
-        ssl_method: "cerbot"
-      when: not ssl_method is defined
+        ssl_method: "static"
+      when: ssl|default(False) and (pem is defined and key is defined)
 
+    - include: "{{ssl_method|default('certbot')}}.yml"
+      when: ssl|default(False)
 
-    #- include: "{{ssl_method}}.yml"
-
-
-    #
     - name: Configure NGINX start automatically
       service: name=nginx state=started enabled=yes
 
     - name: Prepare domain configuration
       template: src=http_proxy.conf dest="/etc/nginx/conf.d/proxy_{{domain}}.conf"
-      register: nginx_config
+      notify: restart nginx
 
     - name: Create path
       file: dest="/data/static_pages/{{ domain }}/htdocs" state=directory

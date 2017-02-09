@@ -8,8 +8,11 @@
 
   - name: Defining certbot command
     set_fact:
-       cmd: "certbot certonly --webroot -w {{certbot_root}}/{{domain}}/ --force-renewal --noninteractive --agree-tos --email {{cerbot_email}} --staging -d {{domain}}"
+       cmd: "certbot certonly --webroot -w {{certbot_root}}/{{domain}}/ --force-renewal --noninteractive --agree-tos --email {{cerbot_email}} -d {{domain}}"
 
+  # TODO: --force-renewal can be an option
+  
+  
   # Preparing command
   - name: Adding aliases
     set_fact:
@@ -22,12 +25,17 @@
        cmd: "{{cmd}} -d {{item}}"
     with_items: "{{domain_alias}}"
     when: domain_alias is defined
+    
+  - name: Prepare HTTP only configuration
+    template: src=http_part.conf dest="/etc/nginx/conf.d/proxy_{{domain}}.conf"
+    register: nginx_config
 
   - name: Restart proxy server
     service: name="nginx" state=restarted
     when: nginx_config.changed
 
-  - debug: msg="{{cmd}}"
+  - name: Requesting certificate using command
+    debug: msg="{{cmd}}"
 
   - name: Request certificates
     command: "{{cmd}}"
@@ -39,4 +47,11 @@
        ssl_path_key: !!null
        ssl_path_key: "/etc/letsencrypt/live/{{domain}}/privkey.pem"
 
+  # TODO: refresh cert only if is close to its expiration
 
+  - name: Register autorefresh cronjob
+    cron:
+      job: /usr/bin/certbot renew --quiet --renew-hook "systemctl restart nginx"
+      special_time: daily
+      name: Refresh SSL certificate
+      

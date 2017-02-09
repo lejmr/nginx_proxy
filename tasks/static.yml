@@ -1,0 +1,8 @@
+
+
+  - name: Configure paths to certificates
+    set_fact:
+       ssl_path_crt: !!null
+       ssl_path_crt: "{{pem}}"
+       ssl_path_key: !!null
+       ssl_path_key: "{{key}}"

@@ -1,0 +1,42 @@
+---
+
+  - name: Prepare directory to export through proxy
+    file: path="{{certbot_root}}/{{domain}}/.well-known" state=directory owner=nginx group=nginx
+
+  - name: Install certbot
+    package: name=certbot state=latest
+
+  - name: Defining certbot command
+    set_fact:
+       cmd: "certbot certonly --webroot -w {{certbot_root}}/{{domain}}/ --force-renewal --noninteractive --agree-tos --email {{cerbot_email}} --staging -d {{domain}}"
+
+  # Preparing command
+  - name: Adding aliases
+    set_fact:
+       cmd: "{{cmd}} -d {{item}}.{{domain}}"
+    with_items: "{{alias}}"
+    when: alias is defined
+
+  - name: Adding domain aliases
+    set_fact:
+       cmd: "{{cmd}} -d {{item}}"
+    with_items: "{{domain_alias}}"
+    when: domain_alias is defined
+
+  - name: Restart proxy server
+    service: name="nginx" state=restarted
+    when: nginx_config.changed
+
+  - debug: msg="{{cmd}}"
+
+  - name: Request certificates
+    command: "{{cmd}}"
+
+  - name: Configure paths to certificates
+    set_fact:
+       ssl_path_crt: !!null
+       ssl_path_crt: "/etc/letsencrypt/live/{{domain}}/fullchain.pem"
+       ssl_path_key: !!null
+       ssl_path_key: "/etc/letsencrypt/live/{{domain}}/privkey.pem"
+
+

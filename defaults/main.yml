@@ -1,0 +1,2 @@
+certbot_root: /data/certbot
+cerbot_email: ssl@lejmr.com

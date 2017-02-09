@@ -1,21 +1,30 @@
 ---
-    
-    - name: Install NGINX 
+
+    # Install necessary software
+    - name: Install NGINX
       package: name={{ item }} state=installed
       with_items:
           - nginx
 
+    #
+    - name: Selecting certificate method
+      set_fact:
+        ssl_method: !!null
+        ssl_method: "cerbot"
+      when: not ssl_method is defined
+
+
+    #- include: "{{ssl_method}}.yml"
+
+
+    #
     - name: Configure NGINX start automatically
       service: name=nginx state=started enabled=yes
-    
+
     - name: Prepare domain configuration
       template: src=http_proxy.conf dest="/etc/nginx/conf.d/proxy_{{domain}}.conf"
-      notify: restart nginx
+      register: nginx_config
 
-    - name: Register domain for SSL certificate
-      lineinfile: line={{domain}} dest=/data/certs/managed_domains create=yes
-      when: (ssl is defined and ssl == True) or (https is defined)
-    
     - name: Create path
       file: dest="/data/static_pages/{{ domain }}/htdocs" state=directory
       when: path is defined

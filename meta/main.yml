@@ -1,0 +1,15 @@
+galaxy_info:
+  author: Milos Kozak
+  description: Nginx HTTP proxy for docker containers with embedded Letsencrypt
+  company: Lejmr.com
+  license: MIT
+  min_ansible_version: 1.9
+  platforms:
+  - name: EL
+    versions:
+    - all
+  galaxy_tags:
+    - nginx
+    - proxy
+    - web
+

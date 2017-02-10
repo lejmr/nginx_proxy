@@ -20,4 +20,30 @@ To bind example.com onto your docker container listening on port 8080 with Letse
 
 ## More sophisticated usage
 
+Sometimes you are in situation (if you are using lejmr/iredmail container) that your container already provides you with HTTPs, but you want to use different certificate. Easy again:
+
+
+```
+      - role: nginx_proxy
+        domain: example.com
+        http: 8080
+        https: 8081
+        ssl: yes
+```
+
+
+And what if one wants to bind container onto a sublocation? That sounds like an already sophisticated problem, but easy again:
+
+
+```
+      - role: nginx_proxy
+        domain: example.com
+        http: 8080
+        ssl: yes
+        locations:
+            mysql:
+                port: 8081
+                
+```
+
 

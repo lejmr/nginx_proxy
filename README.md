@@ -2,7 +2,7 @@
 with some extra and nifty features included.
 
 
-'''
+```
       - role: nginx_proxy
         domain: veterina-kozak.cz
         http: 8084
@@ -13,4 +13,5 @@ with some extra and nifty features included.
             - www.rudna-veterina.cz
             - rudnaveterina.cz
             - www.rudnaveterina.cz
-'''
+
+```

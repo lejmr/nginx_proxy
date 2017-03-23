@@ -1,5 +1,4 @@
 ---
-
   - name: Prepare directory to export through proxy
     file: path="{{certbot_root}}/{{domain}}/.well-known" state=directory owner=nginx group=nginx
 
@@ -8,10 +7,12 @@
 
   - name: Defining certbot command
     set_fact:
-       cmd: "certbot certonly --webroot -w {{certbot_root}}/{{domain}}/ --force-renewal --noninteractive --agree-tos --email {{cerbot_email}} -d {{domain}}"
-
-  # TODO: --force-renewal can be an option
+       cmd: "certbot certonly --webroot -w {{certbot_root}}/{{domain}}/ --noninteractive --agree-tos --email {{cerbot_email}} -d {{domain}}"
   
+  - name: Force renew
+    set_fact:
+       cmd: "{{cmd}} --force-renewal"
+    when: force_renew|default(False)
   
   # Preparing command
   - name: Adding aliases

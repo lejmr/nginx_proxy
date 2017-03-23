@@ -17,12 +17,12 @@
     - include: "{{ssl_method|default('certbot')}}.yml"
       when: ssl|default(False)
 
-    - name: Configure NGINX start automatically
-      service: name=nginx state=started enabled=yes
-
     - name: Prepare domain configuration
       template: src=http_proxy.conf dest="/etc/nginx/conf.d/proxy_{{domain}}.conf"
       notify: restart nginx
+
+    - name: Configure NGINX start automatically
+      service: name=nginx state=started enabled=yes
 
     - name: Create path
       file: dest="/data/static_pages/{{ domain }}/htdocs" state=directory

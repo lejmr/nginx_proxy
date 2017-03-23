@@ -1,8 +1,14 @@
-
-
   - name: Configure paths to certificates
     set_fact:
        ssl_path_crt: !!null
-       ssl_path_crt: "{{pem}}"
+       ssl_path_crt: "/etc/pki/tls/certs/{{domain}}.pem"
        ssl_path_key: !!null
-       ssl_path_key: "{{key}}"
+       ssl_path_key: "/etc/pki/tls/private/{{domain}}.key"
+       
+  - name: Upload certificate pem
+    copy: src={{pem}} dest={{ssl_path_crt}} 
+    
+  - name: Upload certificate key
+    copy: src={{key}} dest={{ssl_path_key}}
+
+
